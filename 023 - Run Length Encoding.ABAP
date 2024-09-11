@@ -1,3 +1,4 @@
+"----------------------------------------------------------------------------------------------------------------------------------------------------------
 *Instructions
 *Implement run-length encoding and decoding.
 *
@@ -11,6 +12,7 @@
 *AABCCCDEEEE"  ->  "2AB3CD4E"  ->  "AABCCCDEEEE"
 *For simplicity, you can assume that the unencoded string will only contain the letters A through Z (either lower or upper case) and whitespace. 
 *This way data to be encoded will never contain any numbers and numbers inside data to be decoded always represent the count for the following character.
+"----------------------------------------------------------------------------------------------------------------------------------------------------------
 
 report zexercism_run_length_decoding.
 
