@@ -1,0 +1,66 @@
+"---------------------------------------------------------------------------------------------------------------------------------------------------
+
+*Introduction
+*Raindrops is a slightly more complex version of the FizzBuzz challenge, a classic interview question.
+*
+*Instructions
+*Your task is to convert a number into its corresponding raindrop sounds.
+*
+*If a given number:
+*
+*is divisible by 3, add "Pling" to the result.
+*is divisible by 5, add "Plang" to the result.
+*is divisible by 7, add "Plong" to the result.
+*is not divisible by 3, 5, or 7, the result should be the number as a string.
+*Examples
+*28 is divisible by 7, but not 3 or 5, so the result would be "Plong".
+*30 is divisible by 3 and 5, but not 7, so the result would be "PlingPlang".
+*34 is not divisible by 3, 5, or 7, so the result would be "34".
+
+"---------------------------------------------------------------------------------------------------------------------------------------------------
+
+report zexercism.
+
+class zcl_raindrops definition.
+  public section.
+    methods raindrops
+      importing
+        input         type i
+      returning
+        value(result) type string.
+endclass.
+
+class zcl_raindrops implementation.
+
+  method raindrops.
+    
+    if input mod 3 eq 0 and input mod 5 eq 0 and input mod 7 eq 0.
+      result = 'PlingPlangPlong'.
+    elseif input mod 3 eq 0 and input mod 5 eq 0.
+      result = 'PlingPlang'.
+    elseif input mod 3 eq 0.
+      result = 'Pling'.
+    elseif input mod 5 eq 0 and input mod 7 eq 0.
+      result = 'PlangPlong'.
+    elseif input mod 5 eq 0.
+      result = 'Plang'.
+    elseif input mod 7 eq 0.
+      result = 'Plong'.
+    else.
+      result = input.
+    endif.
+    
+  endmethod.
+
+endclass.
+
+start-of-selection.
+
+data: ol_raindrops type ref to zcl_raindrops.
+
+create object ol_raindrops.
+
+data: input type i,
+      result type string.
+
+result = ol_raindrops->raindrops( input = input ).
