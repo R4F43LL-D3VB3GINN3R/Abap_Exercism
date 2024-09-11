@@ -1,8 +1,17 @@
-*&---------------------------------------------------------------------*
-*& Report ZEXERCISM_RUN_LENGTH_DECODING
-*&---------------------------------------------------------------------*
-*&
-*&---------------------------------------------------------------------*
+*Instructions
+*Implement run-length encoding and decoding.
+*
+*Run-length encoding (RLE) is a simple form of data compression, where runs (consecutive data elements) are replaced by just one data value and count.
+*
+*For example we can represent the original 53 characters with only 13.
+*
+*WWWWWWWWWWWWBWWWWWWWWWWWWBBBWWWWWWWWWWWWWWWWWWWWWWWWB"  ->  "12WB12W3B24WB"
+*RLE allows the original data to be perfectly reconstructed from the compressed data, which makes it a lossless data compression.
+*
+*AABCCCDEEEE"  ->  "2AB3CD4E"  ->  "AABCCCDEEEE"
+*For simplicity, you can assume that the unencoded string will only contain the letters A through Z (either lower or upper case) and whitespace. 
+*This way data to be encoded will never contain any numbers and numbers inside data to be decoded always represent the count for the following character.
+
 report zexercism_run_length_decoding.
 
 class zcl_rle definition
@@ -19,10 +28,6 @@ class zcl_rle definition
 
   private section.
 
-    data: letter       type c length 1,
-          len_word     type i,
-          count_letter type i.
-
 endclass.
 
 
@@ -30,105 +35,51 @@ class zcl_rle implementation.
 
   method encode.
 
-    if input is not initial.
+    data: char2      type string,
+          duplicates type string.
 
-      "----------------------------------------------------------------------
+    data(str) = input.
+    
+    "percorre a string até que a mesma esteja vazia
+    while str is not initial.
+      
+      "tenta encontrar incidencias de duplicacoes
+      find regex '([\w|\s])(\1*)(.*)' in str submatches char2 duplicates str  ##SUBRC_OK.
+      
+      "se houver strings duplicadas...
+      if duplicates is not initial.
+        result = |{ result }{ strlen( duplicates ) + 1 }{ char2 }|. "concatena o numero + letra
+      "se nao houver...
+      else.
+        result = |{ result }{ char2 }|. "concatena apenas a letra
+      endif.
 
-      data: letter_ahead       type c length 1, "letra a frente
-            count_letter_ahead type i,          "contador de letras a frente
-            matches_letters    type i,          "contador de letras iguais
-            stringnum          type string,     "contador de letras iguais em formato string.
-            len_word           type i,          "tamanho da palavra
-            flag               type abap_bool,  "evento de reset de contador
-            last_char          type c length 1. "ultimo caractere
-
-      me->count_letter = 0.                     "contador de caracteres da string
-      count_letter_ahead = 1.                   "inicia o contador
-      matches_letters    = 0.                   "inicia o contador de letras iguais
-      flag = abap_false.                        "flag de evento
-      len_word = strlen( input ).               "tamanho da palavra
-
-      "----------------------------------------------------------------------
-*      data: input2 type string.
-*      input2 = input.
-*
-*      data: new_word type string value 'Rafael'.
-*
-*      shift input2 right deleting trailing space.
-*      if input2 ne input.
-*        add 1 to len_word.
-*      endif.
-
-      "o ciclo dura a quantidade de caracteres da string
-      do len_word times.
-
-        "se o contador de caracteres da letra a frente chegar na ultima letra...
-        if count_letter_ahead eq len_word.
-          "limpa as variaveis relacionadas a letra da frente para que nao hajam comparacoes
-          "essa comparacao tem de ser evitada para nao haver estouro de index ao fim da string
-          clear count_letter_ahead.
-          clear letter_ahead.
-          flag = abap_true.
-        endif.
-
-        "se a palavra ainda nao tiver chegado até o fim...
-        if count_letter_ahead ne len_word.
-          me->letter = input+count_letter(1).         "letra da string
-          letter_ahead = input+count_letter_ahead(1). "letra da string a frente
-        endif.
-
-        if flag eq abap_true.
-          clear letter_ahead.
-        endif.
-
-        "se a letra for igual a letra da frente...
-        if letter eq letter_ahead.
-          "e ainda nao tiver sido detectado uma letra igual a outra...
-          if matches_letters eq 0.
-             add 2 to matches_letters. "incrementa dois "AA" para sempre contar a primeira
-            "se a mesma letra ja apareceu mais de duas vezes...
-          else.
-            add 1 to matches_letters. "incrementa um pra contar "AA + A"
-          endif.
-          "se a letra da frente for diferente da letra...
-        else.
-          "e se não houveram letras repetidas. "AB"
-          if matches_letters eq 0.
-            if me->letter is initial.
-              concatenate result ' ' into result separated by space.
-            else.
-              concatenate result me->letter into result. "concatena ´string de saída a letra
-            endif.
-            "se houveram letras repetidas...
-          else.
-            stringnum = matches_letters. "casting int >> string
-            if me->letter is not initial.
-              concatenate stringnum me->letter into stringnum.
-              condense stringnum no-gaps.
-            else.
-              if me->letter is initial and letter_ahead is initial.
-                concatenate me->letter letter_ahead into stringnum.
-              else.
-                concatenate stringnum me->letter into stringnum separated by space.
-              endif.
-            endif.
-            concatenate result stringnum into result. "concatena numero em string e letra
-            matches_letters = 0. "redefine o contador de letras iguais
-          endif.
-        endif.
-
-        add 1 to count_letter.       "incrementa o contador de caracteres
-        add 1 to count_letter_ahead. "incrementa o contador de letras a frente.
-
-      enddo.
-
-    endif.
+    endwhile.
 
   endmethod.
 
   method decode.
 
+    data: char2 type string,
+          reps  type string.
 
+    data(str) = input.
+    
+    "percorre a string até que a mesma esteja vazia
+    while str is not initial.
+      
+      "tenta encontrar incidencias de duplicacoes
+      find regex '(\d*)([\w|\s])(.*)' in str submatches reps char2 str  ##SUBRC_OK.
+      
+      "se houver strings duplicadas...
+      if reps is not initial.
+        result = |{ result }{ repeat( val = char2 occ = reps ) }|. "concatena a letra pela quantidade de vezes do numero de repeticoes
+      "se nao houver...
+      else.
+        result = |{ result }{ char2 }|. "concatena apenas a letra
+      endif.
+
+    endwhile.
 
   endmethod.
 
