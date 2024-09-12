@@ -23,7 +23,6 @@ class zcl_rle definition
   create public .
 
   public section.
-
     methods encode importing input         type string
                    returning value(result) type string.
 
