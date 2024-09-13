@@ -1,4 +1,3 @@
-....
 *&---------------------------------------------------------------------*
 *& Report ZEXERCISM_MATRIX
 *&---------------------------------------------------------------------*
@@ -26,10 +25,11 @@ class zcl_matrix definition
         value(result) type integertab.
     methods data_table_prepare
       importing
-        string     type string
+        string       type string
       exporting
-        count_rows type i
-        endlines   type i
+        count_rows   type i
+        endlines     type i
+        blank_spaces type i
       changing
         result     type integertab.
   protected section.
@@ -46,18 +46,19 @@ class zcl_matrix implementation.
 
 *    -----------------------------------------------------------
 
-    data: it_numtable type standard table of i with empty key, "tabela que recebe os numeros tratados
-          index_control type i,                                "controlador de index
-          numrows type i,                                      "numero de linhas
-          lv_string type string,                               "string da matriz
-          lv_endline type i,                                   "finais de linhas
-          lv_index type i.                                     "recebe valores do index
+    data: it_numtable     type standard table of i with empty key, "tabela que recebe os numeros tratados
+          index_control   type i,                                  "controlador de index
+          numrows         type i,                                  "numero de linhas
+          lv_string       type string,                             "string da matriz
+          lv_endline      type i,                                  "finais de linhas
+          lv_index        type i,                                  "recebe valores do index
+          lv_blank_spaces type i.                                  "espacos em branco
 
     lv_index = index.         "recebe a variavel do index
 
-    if index mod 2 eq 1.
-      add 1 to lv_index.
-    endif.
+*    if index mod 2 eq 1.
+*      add 1 to lv_index.
+*    endif.
 
     lv_string     = string.   "variavel recebe a string da matriz
     index_control = lv_index. "controlador de index recebe o index
@@ -65,13 +66,27 @@ class zcl_matrix implementation.
     "metodo para tratar a tabela a partir da string da matriz
     me->data_table_prepare(
       exporting
-        string     = string      "envia a string da matriz
+        string     = string            "envia a string da matriz
       importing
-        count_rows = numrows     "recebe o numero de linhas
-        endlines   = lv_endline  "conta o numero de finais de linhas
+        count_rows = numrows           "recebe o numero de linhas
+        endlines   = lv_endline        "conta o numero de finais de linhas
+        blank_spaces = lv_blank_spaces "espacos em branco
       changing
         result     = it_numtable "recebe a tabela interna tratada
     ).
+
+    "verificacao final para controlar a posicao do index conforme a string de entrada
+    if numrows mod 2 eq 0 and lv_blank_spaces mod 2 eq 1 and index mod 2 eq 0.
+      numrows = ( numrows / 2 ) .
+    elseif numrows mod 2 eq 0 and lv_blank_spaces mod 2 eq 0 and index mod 2 eq 1.
+      numrows = ( numrows / 2 ).
+    elseif numrows mod 2 eq 0 and lv_blank_spaces mod 2 eq 0 and index mod 2 eq 0.
+      numrows = ( numrows / 2 ) - 1.
+    elseif lv_blank_spaces mod 2 = 0 and lv_blank_spaces mod 2 eq 1.
+      numrows = ( numrows / 2 ) - 1.
+    elseif lv_blank_spaces mod 2 = 1.
+      numrows = ( numrows / 2 ) + 1 .
+    endif.
 
     "-----------------------------------------------------------
 
@@ -118,8 +133,9 @@ class zcl_matrix implementation.
     do len_string times.
       letter = lv_string+count_letter(1). "recebe a letra da string
 
+      "se a letra for vazia...
       if letter is initial.
-        add 1 to lv_blank_spaces.
+        add 1 to blank_spaces. "conta o caractere como espaco em branco
       endif.
 
       "se a string nao tiver nem / e nem n...
@@ -131,17 +147,9 @@ class zcl_matrix implementation.
         endif.
         append letter to it_result. "insere o numero na tabela
       endif.
-        add 1 to count_rows.   "incrementa o count row
-        add 1 to count_letter. "incrementa o contrador de letras
-      enddo.
-
-    "o contador de colunas sempre retorna metade do seu numero...
-    "por causa dos espaços em branco
-    if lv_blank_spaces mod 2 = 0.
-      count_rows = ( count_rows / 2 ) - 1.
-    else.
-      count_rows = ( count_rows / 2 ) .
-    endif.
+      add 1 to count_rows.   "incrementa o count row
+      add 1 to count_letter. "incrementa o contrador de letras
+    enddo.
 
     add 1 to endlines. "incrementa para contabilizar a ultima linha.
 
@@ -193,7 +201,7 @@ class zcl_matrix implementation.
         if index_control eq lines( it_result ) + 1.
           append number to it_result2.
         endif.
-       enddo.
+      enddo.
 
     endif.
 
@@ -212,8 +220,8 @@ start-of-selection.
         lv_index  type i,
         it_result type ol_matrix->integertab.
 
-  lv_string = '1 2 3\n4 5 6\n7 8 9'.
-  lv_index = 3.
+  lv_string = '89 1903 3\n18 3 1\n9 4 800'.
+  lv_index = 2.
 
   it_result = ol_matrix->matrix_column(
                 string = lv_string
