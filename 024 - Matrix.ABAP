@@ -95,6 +95,9 @@ class zcl_matrix implementation.
 
     len_string = strlen( lv_string ). "pega o tamanho da string
 
+    "PRIMEIRO TRATAMENTO
+    "------------------------------------------------------------------
+
     "itera sobre a string e passa os caracteres para a tabela
     do len_string times.
       letter = lv_string+count_letter(1). "recebe a letra da string
@@ -120,16 +123,23 @@ class zcl_matrix implementation.
       add 1 to count_letter. "incrementa o contrador de letras
     enddo.
 
+    "------------------------------------------------------------------
+
+    "Se a tabela nao estiver vazia...
     if it_result is not initial.
 
       "controlador do index
       data: index_control type i.
       index_control = 1.
 
-
       data: stringnumber type string, "string do numero
             row1         type string, "linha
             row2         type string. "linha da frente
+
+    "------------------------------------------------------------------
+
+    "SEGUNDO TRATAMENTO
+    "------------------------------------------------------------------
 
       "tratamento da tabela
       loop at it_result into data(ls_result).
@@ -173,6 +183,11 @@ class zcl_matrix implementation.
 
     endif.
 
+    "------------------------------------------------------------------
+
+    "TERCEIRO TRATAMENTO
+    "------------------------------------------------------------------
+
     "---------------
     "output ex:
 *         1  1
@@ -212,6 +227,11 @@ class zcl_matrix implementation.
       append numstring2 to it_result3.
 
     endif.
+
+    "------------------------------------------------------------------
+
+    "ULTIMO TRATAMENTO PARA SAIDA DE DADOS
+    "------------------------------------------------------------------
 
     "se a tabela de tratamento nao estiver vazia
     if it_result3 is not initial.
@@ -340,29 +360,35 @@ class zcl_matrix implementation.
 
     len_string = strlen( lv_string ). "pega o tamanho da string
 
+    "PRIMEIRO TRATAMENTO
+    "------------------------------------------------------------------
+
     "itera sobre a string e passa os caracteres para a tabela
     do len_string times.
       letter = lv_string+count_letter(1). "recebe a letra da string
 
       "se a letra for vazia...
       if letter is initial.
-        add 1 to blank_spaces. "conta o caractere como espaco em branco
+        add 1 to blank_spaces. "conta os espacos em branco
       endif.
 
-      "se a string nao tiver nem / e nem n...
+      "se a string nao tiver nem \/
       if letter cn '\/'.
+        "se houver uma quebra de linha
         if letter eq 'n'.
-          letter = ''.
-          add 1 to endlines.
-          clear count_rows.
+          letter = ''.       "substitui o n por um espaço em branco
+          add 1 to endlines. "incrementa o contador de quebra de linhas
+          clear count_rows.  "limpa o contador de linhas
         endif.
         append letter to it_result. "insere o numero na tabela
       endif.
-      add 1 to count_rows.   "incrementa o count row
+      add 1 to count_rows.   "incrementa o contador de linhas
       add 1 to count_letter. "incrementa o contrador de letras
     enddo.
 
     add 1 to endlines. "incrementa para contabilizar a ultima linha.
+
+    "------------------------------------------------------------------
 
     "se a primeira tabela nao estiver vazia
     if it_result is not initial.
@@ -370,15 +396,18 @@ class zcl_matrix implementation.
       data: index_control type i. "controla o index
 
       "variaveis para tratar caracteres...
-      data: letter2            type c length 1,
-            letter_ahead       type c length 1,
-            number             type string,
-            number2            type string,
-            stringnumber       type i,
-            count_letter2      type i,
-            count_letter_ahead type i.
+      data: letter2            type c length 1, "letra
+            letter_ahead       type c length 1, "letra da frente
+            number             type string,     "numero
+            number2            type string,     "variacao de numero
+            stringnumber       type i,          "string de digitos
+            count_letter2      type i,          "contador de caracteres
+            count_letter_ahead type i.          "contador de caracteres da frente
 
       index_control = 1. "inicia o index para começar pela primeira linha
+
+      "SEGUNDO TRATAMENTO
+      "------------------------------------------------------------------
 
       "itera sobre a tabela para tratar os numeros.
       do lines( it_result ) times.
@@ -416,7 +445,11 @@ class zcl_matrix implementation.
 
     endif.
 
+    "------------------------------------------------------------------
+
     result = it_result2. "passa a tabela para a tabela de saida
+
+    "PS -- Quem recebe esta tabela e parametros é o método para contar colunas
 
   endmethod.
 
